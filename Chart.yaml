@@ -1,4 +1,4 @@
-apiVersion: v2
+apiVersion: v3
 name: 3scale-amp-chart
 description: A Helm chart for running 3scale AMP on Kubernetes
 type: application

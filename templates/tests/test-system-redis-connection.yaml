@@ -8,8 +8,8 @@ metadata:
     "helm.sh/hook": test-success
 spec:
   containers:
-    - name: wget
+    - name: telnet
       image: busybox
-      command: ['wget']
-      args: ['system-redis:6379']
+      command: ['telnet']
+      args: ['system-redis 6379']
   restartPolicy: Never

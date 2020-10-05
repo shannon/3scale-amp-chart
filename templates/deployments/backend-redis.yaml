@@ -12,6 +12,8 @@ spec:
     matchLabels:
       threescale_component: backend
       threescale_component_element: redis
+  strategy:
+    type: Recreate
   template:
     metadata:
     {{- with .Values.backendRedis.podAnnotations }}

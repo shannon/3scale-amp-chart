@@ -2,6 +2,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 appLabel: 3scale-api-management
+tenantName: 3scale
+wildcardDomain: example.com
 
 imagePullSecrets: 
   - name: "threescale-registry-auth"
@@ -26,6 +28,54 @@ backendRedis:
     requests:
       cpu: "1"
       memory: 1Gi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the backend-listener deployment
+backendListener:
+  image: registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.9
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 700Mi
+    requests:
+      cpu: 500m
+      memory: 550Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the backend-worker deployment
+backendWorker:
+  image: registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.9
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 300Mi
+    requests:
+      cpu: 150m
+      memory: 50Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the backend-cron deployment
+backendCron:
+  image: registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.9
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 150m
+      memory: 80Mi
+    requests:
+      cpu: 50m
+      memory: 40Mi
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []

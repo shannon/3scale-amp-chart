@@ -9,9 +9,9 @@ This project is in the very early stages and missing most of the components.
 ### Working Components
 
 - [x] backend-redis
-- [ ] backend-listener
-- [ ] backend-worker
-- [ ] backend-cron
+- [x] backend-listener
+- [x] backend-worker
+- [x] backend-cron
 - [x] system-redis
 - [ ] system-mysql
 - [ ] system-memcache

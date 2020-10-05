@@ -12,6 +12,8 @@ spec:
     matchLabels:
       threescale_component: system
       threescale_component_element: redis
+  strategy:
+    type: Recreate
   template:
     metadata:
     {{- with .Values.systemRedis.podAnnotations }}
