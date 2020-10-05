@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: system-redis
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: system
+    threescale_component_element: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: system
+      threescale_component_element: redis
+  template:
+    metadata:
+    {{- with .Values.systemRedis.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: system
+        threescale_component_element: redis
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      volumes:
+        - name: system-redis-storage
+          persistentVolumeClaim:
+            claimName: system-redis-storage
+        - configMap:
+            items:
+              - key: redis.conf
+                path: redis.conf
+            name: system-redis-config
+          name: system-redis-config
+      containers:
+        - name: system-redis
+          args:
+          - /etc/redis.d/redis.conf
+          - --daemonize
+          - "no"
+          command:
+          - /opt/rh/rh-redis32/root/usr/bin/redis-server
+          image: {{ .Values.systemRedis.image }}
+          imagePullPolicy: {{ .Values.systemRedis.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.systemRedis.resources | nindent 12 }}
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            tcpSocket:
+              port: 6379
+          readinessProbe:
+            exec:
+              command:
+                - container-entrypoint
+                - bash
+                - -c
+                - redis-cli set liveness-probe "`date`" | grep OK
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 1
+          volumeMounts:
+            - mountPath: /var/lib/redis/data
+              name: system-redis-storage
+            - mountPath: /etc/redis.d/
+              name: system-redis-config
+      {{- with .Values.systemRedis.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemRedis.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemRedis.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

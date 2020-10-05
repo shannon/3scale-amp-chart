@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "3scale-amp-chart.fullname" . }}-test-system-redis-connection"
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['system-redis:6379']
+  restartPolicy: Never

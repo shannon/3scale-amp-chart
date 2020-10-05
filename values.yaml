@@ -1,0 +1,48 @@
+nameOverride: ""
+fullnameOverride: ""
+
+appLabel: 3scale-api-management
+
+imagePullSecrets: 
+  - name: "threescale-registry-auth"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Specifies the configuration for the backend-redis deployment
+backendRedis:
+  image: registry.redhat.io/rhscl/redis-32-rhel7:3.2
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "2"
+      memory: 32Gi
+    requests:
+      cpu: "1"
+      memory: 1Gi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the system-redis deployment
+systemRedis:
+  image: registry.redhat.io/rhscl/redis-32-rhel7:3.2
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 32Gi
+    requests:
+      cpu: 150m
+      memory: 256Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
