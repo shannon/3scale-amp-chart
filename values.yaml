@@ -5,8 +5,7 @@ appLabel: 3scale-api-management
 tenantName: 3scale
 wildcardDomain: example.com
 
-imagePullSecrets: 
-  - name: "threescale-registry-auth"
+imagePullSecrets: []
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -19,7 +18,7 @@ serviceAccount:
 
 # Specifies the configuration for the backend-redis deployment
 backendRedis:
-  image: registry.redhat.io/rhscl/redis-32-rhel7:3.2
+  image: centos/redis-32-centos7
   imagePullPolicy: IfNotPresent
   resources:
     limits:
@@ -35,7 +34,7 @@ backendRedis:
 
 # Specifies the configuration for the backend-listener deployment
 backendListener:
-  image: registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.9
+  image: quay.io/3scale/apisonator:nightly
   imagePullPolicy: IfNotPresent
   resources:
     limits:
@@ -51,7 +50,7 @@ backendListener:
 
 # Specifies the configuration for the backend-worker deployment
 backendWorker:
-  image: registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.9
+  image: quay.io/3scale/apisonator:nightly
   imagePullPolicy: IfNotPresent
   resources:
     limits:
@@ -67,7 +66,7 @@ backendWorker:
 
 # Specifies the configuration for the backend-cron deployment
 backendCron:
-  image: registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.9
+  image: quay.io/3scale/apisonator:nightly
   imagePullPolicy: IfNotPresent
   resources:
     limits:
@@ -83,7 +82,7 @@ backendCron:
 
 # Specifies the configuration for the system-redis deployment
 systemRedis:
-  image: registry.redhat.io/rhscl/redis-32-rhel7:3.2
+  image: centos/redis-32-centos7
   imagePullPolicy: IfNotPresent
   resources:
     limits:
