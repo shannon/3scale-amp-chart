@@ -9,12 +9,12 @@ wildcardDomain: example.com
 # Template context includes previous fields in secret definition (see secrets.systemDatabase.url below for an example).
 secrets:
   backendRedis:
-    REDIS_QUEUES_SENTINEL_HOSTS: ""
-    REDIS_QUEUES_SENTINEL_ROLE: ""
-    REDIS_QUEUES_URL: redis://backend-redis:6379/1
-    REDIS_STORAGE_SENTINEL_HOSTS: ""
-    REDIS_STORAGE_SENTINEL_ROLE: ""
-    REDIS_STORAGE_URL: redis://backend-redis:6379/0
+    queuesSentinelHosts: ""
+    queuesSentinelRole: ""
+    queuesURL: redis://backend-redis:6379/1
+    storageSentinelHosts: ""
+    storageSentinelRole: ""
+    storageURL: redis://backend-redis:6379/0
   backendListener:
     route_endpoint: "https://backend-{{ .Values.tenantName }}.{{ .Values.wildcardDomain }}"
     service_endpoint: http://backend-listener:3000
@@ -33,17 +33,17 @@ secrets:
     url: "{{ .proto }}://{{ .rootUsername }}:{{ .rootPassword }}@{{ .host }}:{{ .port }}/{{ .database }}"
   systemRedis:
     # Define the namespace to be used by System's Message Bus Redis Database. The empty value means not namespaced
-    MESSAGE_BUS_NAMESPACE: ""
-    MESSAGE_BUS_SENTINEL_HOSTS: ""
-    MESSAGE_BUS_SENTINEL_ROLE: ""
+    messageBusNamespace: ""
+    messageBusSentinelHosts: ""
+    messageBusSentinelRole: ""
     # Define the external system-redis message bus to connect to. 
     # By default the same value as URL but with the logical database incremented by 1 and the result applied mod 16
-    MESSAGE_BUS_URL: ""
+    messageBusURL: ""
     # Define the namespace to be used by System's Redis Database. The empty value means not namespaced
-    NAMESPACE: ""
-    SENTINEL_HOSTS: ""
-    SENTINEL_ROLE: ""
-    URL: redis://system-redis:6379/1
+    namespace: ""
+    sentinelHosts: ""
+    sentinelRole: ""
+    url: redis://system-redis:6379/1
   systemSMTP:
     address: ""
     authentication: ""
@@ -63,15 +63,15 @@ secrets:
   systemMemcache:
     SERVERS: system-memcache:11211
   systemSeed:
-    ADMIN_ACCESS_TOKEN: "{{ randAlphaNum 16 }}"
-    ADMIN_EMAIL: ""
-    ADMIN_PASSWORD: "{{ randAlphaNum 8 }}"
-    ADMIN_USER: admin
-    MASTER_ACCESS_TOKEN: "{{ randAlphaNum 16 }}"
-    MASTER_DOMAIN: master
-    MASTER_PASSWORD: "{{ randAlphaNum 8 }}"
-    MASTER_USER: master
-    TENANT_NAME: "{{ .Values.tenantName }}"
+    adminAccessToken: "{{ randAlphaNum 16 }}"
+    adminEmail: ""
+    adminPassword: "{{ randAlphaNum 8 }}"
+    adminUsername: admin
+    masterAccessToken: "{{ randAlphaNum 16 }}"
+    masterDomain: master
+    masterPassword: "{{ randAlphaNum 8 }}"
+    masterUsername: master
+    tenantName: "{{ .Values.tenantName }}"
   systemMasterApicast:
     accessToken: "{{ randAlphaNum 8 }}"
     proxyConfigsEndpoint: "http://{{ .accessToken }}@system-master:3000/master/api/proxy/configs"
@@ -209,6 +209,38 @@ systemApp:
     requests:
       cpu: 50m
       memory: 600Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the system-sidekiq deployment
+systemSidekiq:
+  image: quay.io/3scale/porta:nightly
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 500Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the system-sphinx deployment
+systemSphinx:
+  image: quay.io/3scale/porta:nightly
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: 80m
+      memory: 250Mi
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []

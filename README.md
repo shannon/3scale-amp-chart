@@ -16,8 +16,8 @@ This project is in the very early stages and missing most of the components.
 - [x] system-mysql
 - [x] system-memcache
 - [x] system-app
-- [ ] system-sidekiq
-- [ ] system-sphinx
+- [x] system-sidekiq
+- [x] system-sphinx
 - [ ] apicast-staging
 - [ ] apicast-production
 - [ ] zync-database

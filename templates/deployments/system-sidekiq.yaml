@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: system-sidekiq
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: system
+    threescale_component_element: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: system
+      threescale_component_element: sidekiq
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  progressDeadlineSeconds: 1200
+  template:
+    metadata:
+    {{- with .Values.systemSidekiq.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: system
+        threescale_component_element: sidekiq
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      volumes:
+        - name: system-tmp
+          emptyDir:
+            medium: Memory
+        - name: system-storage
+          persistentVolumeClaim:
+            claimName: system-storage
+        - name: system-config
+          configMap:
+            name: system-config
+            items:
+            - key: zync.yml
+              path: zync.yml
+            - key: rolling_updates.yml
+              path: rolling_updates.yml
+            - key: service_discovery.yml
+              path: service_discovery.yml
+      initContainers:
+        - name: check-system-master-svc
+          command:
+            - bash
+            - -c
+            - bundle exec sh -c "until rake boot:redis && curl --output /dev/null --silent
+              --fail --head http://system-master:3000/status; do sleep $SLEEP_SECONDS;
+              done"
+          env:
+            {{- include "3scale-amp-chart.systemRedisEnvironment" . | nindent 12 }}
+          image: {{ .Values.systemSidekiq.image }}
+          imagePullPolicy: {{ .Values.systemSidekiq.imagePullPolicy }}
+          volumeMounts:
+            - mountPath: /opt/system/public/system
+              name: system-storage
+            - mountPath: /tmp
+              name: system-tmp
+            - mountPath: /opt/system-extra-configs
+              name: system-config
+      containers:
+        - name: system-sidekiq
+          args:
+            - rake
+            - sidekiq:worker
+            - RAILS_MAX_THREADS=25
+          env:
+            {{- include "3scale-amp-chart.systemEnvironment" . | nindent 12 }}
+            {{- include "3scale-amp-chart.systemRedisEnvironment" . | nindent 12 }}
+          image: {{ .Values.systemSidekiq.image }}
+          imagePullPolicy: {{ .Values.systemSidekiq.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.systemSidekiq.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /opt/system/public/system
+              name: system-storage
+            - mountPath: /tmp
+              name: system-tmp
+            - mountPath: /opt/system-extra-configs
+              name: system-config
+      {{- with .Values.systemSidekiq.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemSidekiq.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemSidekiq.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

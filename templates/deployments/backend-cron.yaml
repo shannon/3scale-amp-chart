@@ -39,36 +39,7 @@ spec:
           args:
             - backend-cron
           env:
-            - name: CONFIG_REDIS_PROXY
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_STORAGE_URL
-                  name: backend-redis
-            - name: CONFIG_REDIS_SENTINEL_HOSTS
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_STORAGE_SENTINEL_HOSTS
-                  name: backend-redis
-            - name: CONFIG_REDIS_SENTINEL_ROLE
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_STORAGE_SENTINEL_ROLE
-                  name: backend-redis
-            - name: CONFIG_QUEUES_MASTER_NAME
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_QUEUES_URL
-                  name: backend-redis
-            - name: CONFIG_QUEUES_SENTINEL_HOSTS
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_QUEUES_SENTINEL_HOSTS
-                  name: backend-redis
-            - name: CONFIG_QUEUES_SENTINEL_ROLE
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_QUEUES_SENTINEL_ROLE
-                  name: backend-redis
+            {{- include "3scale-amp-chart.backendRedisEnvironment" . | nindent 12 }}
             - name: RACK_ENV
               valueFrom:
                 configMapKeyRef:
@@ -87,36 +58,7 @@ spec:
             - until rake connectivity:redis_storage_queue_check; do sleep $SLEEP_SECONDS;
               done
           env:
-            - name: CONFIG_REDIS_PROXY
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_STORAGE_URL
-                  name: backend-redis
-            - name: CONFIG_REDIS_SENTINEL_HOSTS
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_STORAGE_SENTINEL_HOSTS
-                  name: backend-redis
-            - name: CONFIG_REDIS_SENTINEL_ROLE
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_STORAGE_SENTINEL_ROLE
-                  name: backend-redis
-            - name: CONFIG_QUEUES_MASTER_NAME
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_QUEUES_URL
-                  name: backend-redis
-            - name: CONFIG_QUEUES_SENTINEL_HOSTS
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_QUEUES_SENTINEL_HOSTS
-                  name: backend-redis
-            - name: CONFIG_QUEUES_SENTINEL_ROLE
-              valueFrom:
-                secretKeyRef:
-                  key: REDIS_QUEUES_SENTINEL_ROLE
-                  name: backend-redis
+            {{- include "3scale-amp-chart.backendRedisEnvironment" . | nindent 12 }}
             - name: RACK_ENV
               valueFrom:
                 configMapKeyRef:
