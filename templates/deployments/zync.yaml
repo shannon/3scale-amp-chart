@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zync
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: zync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: zync
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+    {{- with .Values.zync.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+        prometheus.io/port: "9393"
+        prometheus.io/scrape: "true"
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: zync
+    spec:
+      initContainers:
+        - name: zync-db-svc
+          command:
+            - bash
+            - -c
+            - bundle exec sh -c "until rake boot:db; do sleep $SLEEP_SECONDS; done"
+          env:
+          - name: SLEEP_SECONDS
+            value: "1"
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                key: databaseURL
+                name: zync
+          image: {{ .Values.zync.image }}
+          imagePullPolicy: {{ .Values.zync.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.zync.resources | nindent 12 }}
+      containers:
+        - name: zync
+          env:
+            {{- include "3scale-amp-chart.zyncEnvironment" . | nindent 12 }}
+          image: {{ .Values.zync.image }}
+          imagePullPolicy: {{ .Values.zync.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.zync.resources | nindent 12 }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /status/live
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /status/ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zync.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zync.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zync.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

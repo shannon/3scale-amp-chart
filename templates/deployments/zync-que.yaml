@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zync-que
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: zync
+    threescale_component_element: que
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: zync
+      threescale_component_element: que
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  progressDeadlineSeconds: 600
+  template:
+    metadata:
+    {{- with .Values.zyncQue.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+        prometheus.io/port: "9394"
+        prometheus.io/scrape: "true"
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: zync
+        threescale_component_element: que
+    spec:
+      containers:
+        - name: que
+          args:
+            - -c
+            - bundle exec rake 'que[--worker-count 10]'
+          command:
+            - /usr/bin/bash
+          env:
+            {{- include "3scale-amp-chart.zyncEnvironment" . | nindent 12 }}
+          image: {{ .Values.zyncQue.image }}
+          imagePullPolicy: {{ .Values.zyncQue.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.zyncQue.resources | nindent 12 }}
+          ports:
+            - name: metrics
+              containerPort: 9394
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /metrics
+              port: 9394
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+      serviceAccountName: zync-que-sa
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zyncQue.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zyncQue.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zyncQue.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

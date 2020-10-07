@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zync-database
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: zync
+    threescale_component_element: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: zync
+      threescale_component_element: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+    {{- with .Values.zyncDatabase.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: zync
+        threescale_component_element: database
+    spec:
+      volumes:
+        - emptyDir: {}
+          name: zync-database-data
+      containers:
+        - name: postgresql
+          env:
+            - name: POSTGRESQL_USER
+              value: zync
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: databasePassword
+                  name: zync
+            - name: POSTGRESQL_DATABASE
+              value: zync_production
+          image: {{ .Values.zyncDatabase.image }}
+          imagePullPolicy: {{ .Values.zyncDatabase.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.zyncDatabase.resources | nindent 12 }}
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 5432
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -i
+                - -c
+                - psql -h 127.0.0.1 -U zync -q -d zync_production -c 'SELECT 1'
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          volumeMounts:
+            - mountPath: /var/lib/pgsql/data
+              name: zync-database-data
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zyncDatabase.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zyncDatabase.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.zyncDatabase.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

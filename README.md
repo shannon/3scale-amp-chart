@@ -20,8 +20,8 @@ This project is in the very early stages and missing some of the components.
 - [x] system-sphinx
 - [x] apicast-staging
 - [x] apicast-production
-- [ ] zync-database
-- [ ] zync
+- [x] zync-database
+- [x] zync
 - [ ] zync-que
 
 ## Installing the chart

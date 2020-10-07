@@ -119,6 +119,98 @@ spec:
               name: system-storage
             - mountPath: /opt/system-extra-configs
               name: system-config
+        - name: system-provider
+          args:
+            - env
+            - TENANT_MODE=provider
+            - PORT=3000
+            - container-entrypoint
+            - bundle
+            - exec
+            - unicorn
+            - -c
+            - config/unicorn.rb
+          env:
+            {{- include "3scale-amp-chart.systemEnvironment" . | nindent 12 }}
+            {{- include "3scale-amp-chart.systemRedisEnvironment" . | nindent 12 }}
+          image: {{ .Values.systemApp.image }}
+          imagePullPolicy: {{ .Values.systemApp.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.systemApp.resources | nindent 12 }}
+          ports:
+            - name: provider
+              containerPort: 3001
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 40
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            tcpSocket:
+              port: provider
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              httpHeaders:
+              - name: X-Forwarded-Proto
+                value: https
+              path: /check.txt
+              port: provider
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          volumeMounts:
+            - mountPath: /opt/system/public/system
+              name: system-storage
+            - mountPath: /opt/system-extra-configs
+              name: system-config
+        - name: system-developer
+          args:
+            - env
+            - TENANT_MODE=developer
+            - PORT=3001
+            - container-entrypoint
+            - bundle
+            - exec
+            - unicorn
+            - -c
+            - config/unicorn.rb
+          env:
+            {{- include "3scale-amp-chart.systemEnvironment" . | nindent 12 }}
+            {{- include "3scale-amp-chart.systemRedisEnvironment" . | nindent 12 }}
+          image: {{ .Values.systemApp.image }}
+          imagePullPolicy: {{ .Values.systemApp.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.systemApp.resources | nindent 12 }}
+          ports:
+            - name: developer
+              containerPort: 3001
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 40
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            tcpSocket:
+              port: developer
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              httpHeaders:
+              - name: X-Forwarded-Proto
+                value: https
+              path: /check.txt
+              port: developer
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          volumeMounts:
+            - mountPath: /opt/system/public/system
+              name: system-storage
+            - mountPath: /opt/system-extra-configs
+              name: system-config
       serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

@@ -3,7 +3,7 @@ fullnameOverride: ""
 
 appLabel: 3scale-api-management
 tenantName: 3scale
-wildcardDomain: example.com
+wildcardDomain: lvh.me
 
 # Values in secrets will be processed as templates. 
 # Template context includes previous fields in secret definition (see secrets.systemDatabase.url below for an example).
@@ -79,7 +79,7 @@ secrets:
     secretKeyBase: "{{ randAlphaNum 16 }}"
     authenticationToken: "{{ randAlphaNum 16 }}"
     databasePassword: "{{ randAlphaNum 16 }}"
-    databaseUrl: postgresql://zync:{{ .databasePassword }}@zync-database:5432/zync_production
+    databaseURL: postgresql://zync:{{ .databasePassword }}@zync-database:5432/zync_production
 
 # Uncomment to specify an apicast registry URL
 # apicastRegistryURL: "http://apicast-staging:8090/policies"
@@ -273,6 +273,54 @@ apicastProduction:
     requests:
       cpu: 500m
       memory: 64Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration zync deployment
+zync:
+  image: quay.io/3scale/zync:nightly
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: 150m
+      memory: 250M
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration zync deployment
+zyncQue:
+  image: quay.io/3scale/zync:nightly
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 250M
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration zync-database deployment
+zyncDatabase:
+  image: centos/postgresql-10-centos7
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 250m
+      memory: 2G
+    requests:
+      cpu: 50m
+      memory: 250M
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []

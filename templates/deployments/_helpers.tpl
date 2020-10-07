@@ -184,12 +184,12 @@
 - name: APICAST_BACKEND_ROOT_ENDPOINT
   valueFrom:
     secretKeyRef:
-      key: route_endpoint
+      key: routeEndpoint
       name: backend-listener
 - name: BACKEND_ROUTE
   valueFrom:
     secretKeyRef:
-      key: route_endpoint
+      key: routeEndpoint
       name: backend-listener
 - name: SMTP_ADDRESS
   valueFrom:
@@ -289,4 +289,36 @@
     secretKeyRef:
       key: messageBusSentinelRole
       name: system-redis
+{{- end }}
+
+{{- define "3scale-amp-chart.zyncEnvironment" -}}
+- name: RAILS_LOG_TO_STDOUT
+  value: "true"
+- name: RAILS_ENV
+  value: production
+- name: DATABASE_URL
+  valueFrom:
+    secretKeyRef:
+      key: databaseURL
+      name: zync
+- name: SECRET_KEY_BASE
+  valueFrom:
+    secretKeyRef:
+      key: secretKeyBase
+      name: zync
+- name: ZYNC_AUTHENTICATION_TOKEN
+  valueFrom:
+    secretKeyRef:
+      key: authenticationToken
+      name: zync
+- name: POD_NAME
+  valueFrom:
+    fieldRef:
+      apiVersion: v1
+      fieldPath: metadata.name
+- name: POD_NAMESPACE
+  valueFrom:
+    fieldRef:
+      apiVersion: v1
+      fieldPath: metadata.namespace
 {{- end }}
