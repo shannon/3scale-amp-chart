@@ -29,11 +29,6 @@ spec:
         threescale_component: backend
         threescale_component_element: worker
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       containers:
         - name: backend-worker
           args:
@@ -79,6 +74,11 @@ spec:
               value: "1"
           image: {{ .Values.backendWorker.image }}
           resources: {}  
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.backendWorker.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

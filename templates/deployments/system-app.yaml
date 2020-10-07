@@ -29,11 +29,6 @@ spec:
         threescale_component: system
         threescale_component_element: app
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       volumes:
         - name: system-storage
           persistentVolumeClaim:
@@ -124,6 +119,11 @@ spec:
               name: system-storage
             - mountPath: /opt/system-extra-configs
               name: system-config
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.systemApp.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

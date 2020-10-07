@@ -25,11 +25,6 @@ spec:
         threescale_component: system
         threescale_component_element: mysql
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       volumes:
         - name: system-mysql-storage
           persistentVolumeClaim:
@@ -97,6 +92,11 @@ spec:
               name: system-mysql-extra-config
             - mountPath: /etc/my-extra
               name: system-mysql-config
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.systemMySQL.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

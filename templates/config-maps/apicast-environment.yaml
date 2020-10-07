@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: apicast
+  name: apicast-environment
+data:
+  APICAST_MANAGEMENT_API: status
+  APICAST_RESPONSE_CODES: "true"
+  OPENSSL_VERIFY: "false"

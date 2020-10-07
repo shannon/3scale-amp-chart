@@ -16,8 +16,8 @@ secrets:
     storageSentinelRole: ""
     storageURL: redis://backend-redis:6379/0
   backendListener:
-    route_endpoint: "https://backend-{{ .Values.tenantName }}.{{ .Values.wildcardDomain }}"
-    service_endpoint: http://backend-listener:3000
+    routeEndpoint: "https://backend-{{ .Values.tenantName }}.{{ .Values.wildcardDomain }}"
+    serviceEndpoint: http://backend-listener:3000
   backendInternalApi:
     username: "3scale_api_user"
     password: "{{ randAlphaNum 8 }}"
@@ -241,6 +241,38 @@ systemSphinx:
     requests:
       cpu: 80m
       memory: 250Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the apicast-staging deployment
+apicastStaging:
+  image: quay.io/3scale/apicast:nightly
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the apicast-production deployment
+apicastProduction:
+  image: quay.io/3scale/apicast:nightly
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 128Mi
+    requests:
+      cpu: 500m
+      memory: 64Mi
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []

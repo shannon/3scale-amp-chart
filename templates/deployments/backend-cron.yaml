@@ -29,11 +29,6 @@ spec:
         threescale_component: backend
         threescale_component_element: cron
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       containers:
         - name: backend-cron
           args:
@@ -68,6 +63,11 @@ spec:
               value: "1"
           image: {{ .Values.backendCron.image }}
           resources: {}  
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.backendCron.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

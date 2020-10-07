@@ -4,7 +4,7 @@ This is a community project to bring 3scale API Management to a non OpenShift en
 
 ## Project status
 
-This project is in the very early stages and missing most of the components.
+This project is in the very early stages and missing some of the components.
 
 ### Working Components
 
@@ -18,8 +18,8 @@ This project is in the very early stages and missing most of the components.
 - [x] system-app
 - [x] system-sidekiq
 - [x] system-sphinx
-- [ ] apicast-staging
-- [ ] apicast-production
+- [x] apicast-staging
+- [x] apicast-production
 - [ ] zync-database
 - [ ] zync
 - [ ] zync-que

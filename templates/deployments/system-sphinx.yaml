@@ -29,11 +29,6 @@ spec:
         threescale_component: system
         threescale_component_element: sphinx
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       volumes:
         - emptyDir: {}
           name: system-sphinx-database
@@ -88,6 +83,11 @@ spec:
           volumeMounts:
             - mountPath: /opt/system/db/sphinx
               name: system-sphinx-database
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.systemSphinx.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

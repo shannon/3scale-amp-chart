@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apicast-staging
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: apicast
+    threescale_component_element: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: apicast
+      threescale_component_element: staging
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  progressDeadlineSeconds: 1800
+  template:
+    metadata:
+    {{- with .Values.apicastStaging.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+        prometheus.io/port: "9421"
+        prometheus.io/scrape: "true"
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: apicast
+        threescale_component_element: staging
+    spec:
+      volumes:
+        - emptyDir: {}
+          name: system-staging-database
+      containers:
+        - name: apicast-staging
+          env:
+            - name: THREESCALE_PORTAL_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  key: proxyConfigsEndpoint
+                  name: system-master-apicast
+            - name: BACKEND_ENDPOINT_OVERRIDE
+              valueFrom:
+                secretKeyRef:
+                  key: serviceEndpoint
+                  name: backend-listener
+            - name: APICAST_MANAGEMENT_API
+              valueFrom:
+                configMapKeyRef:
+                  key: APICAST_MANAGEMENT_API
+                  name: apicast-environment
+            - name: OPENSSL_VERIFY
+              valueFrom:
+                configMapKeyRef:
+                  key: OPENSSL_VERIFY
+                  name: apicast-environment
+            - name: APICAST_RESPONSE_CODES
+              valueFrom:
+                configMapKeyRef:
+                  key: APICAST_RESPONSE_CODES
+                  name: apicast-environment
+            - name: APICAST_CONFIGURATION_LOADER
+              value: lazy
+            - name: APICAST_CONFIGURATION_CACHE
+              value: "0"
+            - name: THREESCALE_DEPLOYMENT_ENV
+              value: staging
+          image: {{ .Values.apicastStaging.image }}
+          imagePullPolicy: {{ .Values.apicastStaging.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.apicastStaging.resources | nindent 12 }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8090
+              protocol: TCP
+            - containerPort: 9421
+              name: metrics
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /status/live
+              port: 8090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: 8090
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apicastStaging.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apicastStaging.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apicastStaging.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -29,11 +29,6 @@ spec:
         threescale_component: system
         threescale_component_element: sidekiq
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       volumes:
         - name: system-tmp
           emptyDir:
@@ -90,6 +85,11 @@ spec:
               name: system-tmp
             - mountPath: /opt/system-extra-configs
               name: system-config
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.systemSidekiq.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

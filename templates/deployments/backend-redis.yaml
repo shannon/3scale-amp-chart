@@ -25,11 +25,6 @@ spec:
         threescale_component: backend
         threescale_component_element: redis
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
       volumes:
         - name: backend-redis-storage
           persistentVolumeClaim:
@@ -72,6 +67,11 @@ spec:
               name: backend-redis-storage
             - mountPath: /etc/redis.d/
               name: backend-redis-config
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.backendRedis.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
