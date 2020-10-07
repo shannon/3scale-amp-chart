@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: system
+  name: system-environment
+data:
+  AMP_RELEASE: {{ .Chart.AppVersion | quote }}
+  APICAST_REGISTRY_URL: {{ default "http://apicast-staging:8090/policies" .Values.apicastRegistryURL | quote }}
+  FORCE_SSL: "true"
+  PROVIDER_PLAN: enterprise
+  RAILS_ENV: production
+  RAILS_LOG_LEVEL: info
+  RAILS_LOG_TO_STDOUT: "true"
+  SSL_CERT_DIR: /etc/pki/tls/certs
+  THINKING_SPHINX_PORT: "9306"
+  THREESCALE_SANDBOX_PROXY_OPENSSL_VERIFY_MODE: VERIFY_NONE
+  THREESCALE_SUPERDOMAIN: {{ .Values.wildcardDomain | quote }}

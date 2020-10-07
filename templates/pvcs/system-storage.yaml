@@ -1,14 +1,15 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: system-redis-storage
+  name: system-storage
   labels:
     {{- include "3scale-amp-chart.labels" . | nindent 4 }}
     threescale_component: system
-    threescale_component_element: redis
+    threescale_component_element: app
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 100Mi
+  storageClassName: {{ .Values.storageClassRWX }}

@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: system-mysql
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: system
+    threescale_component_element: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: system
+      threescale_component_element: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+    {{- with .Values.systemMySQL.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: system
+        threescale_component_element: mysql
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      volumes:
+        - name: system-mysql-storage
+          persistentVolumeClaim:
+            claimName: system-mysql-storage
+        - configMap:
+            name: system-mysql-extra-config
+          name: system-mysql-extra-config
+        - configMap:
+            name: system-mysql-config
+          name: system-mysql-config
+      containers:
+        - name: system-mysql
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: system-database
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: system-database
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: database
+                  name: system-database
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: rootPassword
+                  name: system-database
+            - name: MYSQL_LOWER_CASE_TABLE_NAMES
+              value: "1"
+            - name: MYSQL_DEFAULTS_FILE
+              value: /etc/my-extra/my.cnf
+          image: {{ .Values.systemMySQL.image }}
+          imagePullPolicy: {{ .Values.systemMySQL.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.systemMySQL.resources | nindent 12 }}
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            tcpSocket:
+              port: 3306
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -i
+              - -c
+              - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE
+                -e 'SELECT 1'
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /var/lib/mysql/data
+              name: system-mysql-storage
+            - mountPath: /etc/my-extra.d
+              name: system-mysql-extra-config
+            - mountPath: /etc/my-extra
+              name: system-mysql-config
+      {{- with .Values.systemMySQL.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemMySQL.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemMySQL.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -13,10 +13,10 @@ spec:
       threescale_component: backend
       threescale_component_element: worker
   strategy:
+      type: RollingUpdate
       rollingUpdate:
         maxSurge: 25%
         maxUnavailable: 25%
-      type: RollingUpdate
   progressDeadlineSeconds: 1200
   template:
     metadata:

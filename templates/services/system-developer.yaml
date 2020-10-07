@@ -1,18 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: system-redis
+  name: system-developer
   labels:
     {{- include "3scale-amp-chart.labels" . | nindent 4 }}
     threescale_component: system
-    threescale_component_element: redis
+    threescale_component_element: developer
 spec:
   ports:
-    - name: redis
-      port: 6379
-      targetPort: 6379
+    - name: http
+      port: 3000
       protocol: TCP
+      targetPort: developer
   selector:
     {{- include "3scale-amp-chart.selectorLabels" . | nindent 4 }}
     threescale_component: system
-    threescale_component_element: redis
+    threescale_component_element: app

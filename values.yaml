@@ -5,16 +5,87 @@ appLabel: 3scale-api-management
 tenantName: 3scale
 wildcardDomain: example.com
 
-imagePullSecrets: []
+# Values in secrets will be processed as templates. 
+# Template context includes previous fields in secret definition (see secrets.systemDatabase.url below for an example).
+secrets:
+  backendRedis:
+    REDIS_QUEUES_SENTINEL_HOSTS: ""
+    REDIS_QUEUES_SENTINEL_ROLE: ""
+    REDIS_QUEUES_URL: redis://backend-redis:6379/1
+    REDIS_STORAGE_SENTINEL_HOSTS: ""
+    REDIS_STORAGE_SENTINEL_ROLE: ""
+    REDIS_STORAGE_URL: redis://backend-redis:6379/0
+  backendListener:
+    route_endpoint: "https://backend-{{ .Values.tenantName }}.{{ .Values.wildcardDomain }}"
+    service_endpoint: http://backend-listener:3000
+  backendInternalApi:
+    username: "3scale_api_user"
+    password: "{{ randAlphaNum 8 }}"
+  systemDatabase:
+    username: "mysql"
+    password: "{{ randAlphaNum 8 }}"
+    database: "system"
+    host: "system-mysql"
+    port: "3306"
+    proto: "mysql2"
+    rootUsername: "root"
+    rootPassword: "{{ randAlphaNum 8 }}"
+    url: "{{ .proto }}://{{ .rootUsername }}:{{ .rootPassword }}@{{ .host }}:{{ .port }}/{{ .database }}"
+  systemRedis:
+    # Define the namespace to be used by System's Message Bus Redis Database. The empty value means not namespaced
+    MESSAGE_BUS_NAMESPACE: ""
+    MESSAGE_BUS_SENTINEL_HOSTS: ""
+    MESSAGE_BUS_SENTINEL_ROLE: ""
+    # Define the external system-redis message bus to connect to. 
+    # By default the same value as URL but with the logical database incremented by 1 and the result applied mod 16
+    MESSAGE_BUS_URL: ""
+    # Define the namespace to be used by System's Redis Database. The empty value means not namespaced
+    NAMESPACE: ""
+    SENTINEL_HOSTS: ""
+    SENTINEL_ROLE: ""
+    URL: redis://system-redis:6379/1
+  systemSMTP:
+    address: ""
+    authentication: ""
+    domain: ""
+    openssl.verify.mode: ""
+    password: ""
+    port: ""
+    username: ""
+  systemEventsHook:
+    url: http://system-master:3000/master/events/import
+    password: "{{ randAlphaNum 8 }}"
+  systemRecaptcha:
+    publicKey: ""
+    privateKey: ""
+  systemApp:
+    secretKeyBase: "{{ randAlphaNum 128 }}"
+  systemMemcache:
+    SERVERS: system-memcache:11211
+  systemSeed:
+    ADMIN_ACCESS_TOKEN: "{{ randAlphaNum 16 }}"
+    ADMIN_EMAIL: ""
+    ADMIN_PASSWORD: "{{ randAlphaNum 8 }}"
+    ADMIN_USER: admin
+    MASTER_ACCESS_TOKEN: "{{ randAlphaNum 16 }}"
+    MASTER_DOMAIN: master
+    MASTER_PASSWORD: "{{ randAlphaNum 8 }}"
+    MASTER_USER: master
+    TENANT_NAME: "{{ .Values.tenantName }}"
+  systemMasterApicast:
+    accessToken: "{{ randAlphaNum 8 }}"
+    proxyConfigsEndpoint: "http://{{ .accessToken }}@system-master:3000/master/api/proxy/configs"
+  zync:
+    secretKeyBase: "{{ randAlphaNum 16 }}"
+    authenticationToken: "{{ randAlphaNum 16 }}"
+    databasePassword: "{{ randAlphaNum 16 }}"
+    databaseUrl: postgresql://zync:{{ .databasePassword }}@zync-database:5432/zync_production
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+# Uncomment to specify an apicast registry URL
+# apicastRegistryURL: "http://apicast-staging:8090/policies"
+
+imagePullSecrets: []
+storageClassRWX: standard
 
 # Specifies the configuration for the backend-redis deployment
 backendRedis:
@@ -95,3 +166,59 @@ systemRedis:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+
+# Specifies the configuration for the system-mysql deployment
+systemMySQL:
+  image: centos/mysql-57-centos7
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      memory: 2Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the system-memcache deployment
+systemMemcache:
+  image: memcached:1.5
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 250m
+      memory: 96Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# Specifies the configuration for the system-app deployment
+systemApp:
+  image: quay.io/3scale/porta:nightly
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "1"
+      memory: 800Mi
+    requests:
+      cpu: 50m
+      memory: 600Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""

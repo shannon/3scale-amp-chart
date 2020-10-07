@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: system-memcache
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: system
+    threescale_component_element: memcache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      threescale_component: system
+      threescale_component_element: memcache
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+    {{- with .Values.systemMemcache.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
+        threescale_component: system
+        threescale_component_element: memcache
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "3scale-amp-chart.serviceAccountName" . }}
+      containers:
+        - name: system-memcache
+          args:
+            - memcached
+            - -m
+            - "64"
+          image: {{ .Values.systemMemcache.image }}
+          imagePullPolicy: {{ .Values.systemMemcache.imagePullPolicy }}
+          resources:
+            {{- toYaml .Values.systemMemcache.resources | nindent 12 }}
+          ports:
+            - containerPort: 11211
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            tcpSocket:
+              port: 11211
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            tcpSocket:
+              port: 11211
+      {{- with .Values.systemMemcache.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemMemcache.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.systemMemcache.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -43,11 +43,11 @@ spec:
       containers:
         - name: backend-redis
           args:
-          - /etc/redis.d/redis.conf
-          - --daemonize
-          - "no"
+            - /etc/redis.d/redis.conf
+            - --daemonize
+            - "no"
           command:
-          - /opt/rh/rh-redis32/root/usr/bin/redis-server
+            - /opt/rh/rh-redis32/root/usr/bin/redis-server
           image: {{ .Values.backendRedis.image }}
           imagePullPolicy: {{ .Values.backendRedis.imagePullPolicy }}
           resources:

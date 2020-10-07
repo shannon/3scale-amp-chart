@@ -13,9 +13,9 @@ This project is in the very early stages and missing most of the components.
 - [x] backend-worker
 - [x] backend-cron
 - [x] system-redis
-- [ ] system-mysql
-- [ ] system-memcache
-- [ ] system-app
+- [x] system-mysql
+- [x] system-memcache
+- [x] system-app
 - [ ] system-sidekiq
 - [ ] system-sphinx
 - [ ] apicast-staging
