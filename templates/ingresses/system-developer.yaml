@@ -12,6 +12,7 @@ spec:
   tls:
     - hosts:
         - {{ .Values.tenantName }}.{{ .Values.wildcardDomain }}
+      secretName: system-developer-tls
   rules:
     - host: {{ .Values.tenantName }}.{{ .Values.wildcardDomain }}
       http: 

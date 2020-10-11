@@ -12,6 +12,7 @@ spec:
   tls:
     - hosts:
         - api-{{ .Values.tenantName }}-apicast-production.{{ .Values.wildcardDomain }}
+      secretName: apicast-production-tls
   rules:
     - host: api-{{ .Values.tenantName }}-apicast-production.{{ .Values.wildcardDomain }}
       http: 

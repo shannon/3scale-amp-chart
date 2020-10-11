@@ -12,6 +12,7 @@ spec:
   tls:
     - hosts:
         - backend-{{ .Values.tenantName }}.{{ .Values.wildcardDomain }}
+      secretName: backend-tls
   rules:
     - host: backend-{{ .Values.tenantName }}.{{ .Values.wildcardDomain }}
       http: 
