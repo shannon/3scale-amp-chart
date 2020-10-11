@@ -4,7 +4,7 @@ This is a community project to bring 3scale API Management to a non OpenShift en
 
 ## Project status
 
-This project is in the very early stages and missing some of the components.
+This project is in the very early stages.
 
 ### Working Components
 
@@ -22,7 +22,9 @@ This project is in the very early stages and missing some of the components.
 - [x] apicast-production
 - [x] zync-database
 - [x] zync
-- [ ] zync-que
+- [x] zync-que*
+
+* Automatic Kubernetes route creation is disabled
 
 ## Installing the chart
 

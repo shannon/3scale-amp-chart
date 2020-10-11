@@ -321,4 +321,6 @@
     fieldRef:
       apiVersion: v1
       fieldPath: metadata.namespace
+- name: DISABLE_K8S_ROUTES_CREATION
+  value: "1"
 {{- end }}

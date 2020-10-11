@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    {{- include "3scale-amp-chart.labels" . | nindent 4 }}
+    threescale_component: system
+    threescale_component_element: master
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  name: system-master
+spec:
+  tls:
+    - hosts:
+        - master.{{ .Values.wildcardDomain }}
+  rules:
+    - host: master.{{ .Values.wildcardDomain }}
+      http: 
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: system-master
+                port:
+                  name: http
