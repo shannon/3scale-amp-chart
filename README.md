@@ -31,16 +31,21 @@ This project is in the very early stages.
 ```
 git clone https://github.com/shannon/3scale-amp-chart
 cd 3scale-amp-chart
-helm install amp . --namespace amp --set wildcardDomain=example.com
+helm install amp . --namespace amp --set wildcardDomain=example.com --create-namespace
 ```
 
 Output:
 
 ```
 NAME: amp
-LAST DEPLOYED: Mon Oct  5 15:12:18 2020
+LAST DEPLOYED: Wed Oct 14 08:54:15 2020
 NAMESPACE: amp
 STATUS: deployed
 REVISION: 1
 NOTES:
+Please wait a few minutes for all the components to start and the appropriate ingresses to be created.
+Once running, you can vist the admin portal at https://3scale-admin.example.com.
+Use the credentials below to login.
+username: admin
+password: GkzkE6jo
 ```

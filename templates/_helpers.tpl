@@ -62,27 +62,25 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{/*
+{{/* 
 Merges .Values.secret data with existing secret data if found. This helps avoid regenerating secrets if they are already set.
 Specified name is kebabcased when performing lookup on secret resource. The values in .Values.secrets will be processed as templates.
-Example Usage:
-```
-data:
-  {{- include "3scale-amp-chart.mergeSecretsFromValues" (merge (dict "name" "backendInternalApi") .) | nindent 2 }}
-```
+Include in each template that needs the secrets, it will only process once.
 */}}
 {{- define "3scale-amp-chart.mergeSecretsFromValues" -}}
-{{- $root := . }}
-{{- $values := (index .Values.secrets .name) }}
-{{- $existing := (lookup "v1" "Secret" .Release.Namespace (.name | kebabcase)) }}
-{{- $return := (dict) }}
-{{- range $key, $value := $values }}
-    {{- $_ := set $return $key (tpl $value (mergeOverwrite (dict) $root $return)) }}
-{{- end }}
-{{- if $existing }}
-  {{- range $key, $value := $existing.data }}
-    {{- $_ := set $return $key ($value | b64dec) }}
+{{- if hasKey $ "secretsProcessed" -}}
+{{- else }}
+  {{- range $name, $values := .Values.secrets }}
+    {{- $existing := (lookup "v1" "Secret" $.Release.Namespace ($name | kebabcase)) }}
+    {{- if $existing }}
+      {{- range $key, $value := $existing.data }}
+        {{- $_ := set $values $key ($value | b64dec) }}
+      {{- end }}
+    {{- end }}
+    {{- range $key, $value := $values }}
+      {{- $_ := set $values $key (tpl $value (mergeOverwrite (dict) $ $values)) }}
+    {{- end }}
   {{- end }}
+  {{- $_ := set $ "secretsProcessed" "true" }}
 {{- end }}
-{{- toYaml $return -}}
 {{- end }}

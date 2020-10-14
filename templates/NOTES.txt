@@ -1,6 +1,7 @@
-{{- $seed := (lookup "v1" "Secret" .Release.Namespace "system-seed") -}}
+{{- include "3scale-amp-chart.mergeSecretsFromValues" . -}}
 Please wait a few minutes for all the components to start and the appropriate ingresses to be created.
-Once running, you can vist the admin portal at https://{{ .Values.tenantName }}-admin.{{ .Values.wildcardDomain }}
-Use the following credentials to login
-username: {{ $seed.data.adminUsername | b64dec }}
-password: {{ $seed.data.adminPassword | b64dec }}
+Once running, you can vist the admin portal at https://{{ .Values.tenantName }}-admin.{{ .Values.wildcardDomain }}.
+Use the credentials below to login.
+username: {{ .Values.secrets.systemSeed.adminUsername }}
+password: {{ .Values.secrets.systemSeed.adminPassword }}
+
