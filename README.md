@@ -21,17 +21,17 @@ This project is in the very early stages.
 - [x] apicast-staging
 - [x] apicast-production
 - [x] zync-database
-- [x] zync
+- [x] zync*
 - [x] zync-que*
 
-* Automatic Kubernetes route creation is disabled
+\* Zync is using a patched image to add support for automatic Kubernetes route creation. See 3scale/zync#394.
 
 ## Installing the chart
 
 ```
 git clone https://github.com/shannon/3scale-amp-chart
 cd 3scale-amp-chart
-helm install amp . --namespace amp
+helm install amp . --namespace amp --set wildcardDomain=example.com
 ```
 
 Output:

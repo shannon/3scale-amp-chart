@@ -280,7 +280,7 @@ apicastProduction:
 
 # Specifies the configuration zync deployment
 zync:
-  image: quay.io/3scale/zync:nightly
+  image: quay.io/spoole/zync:latest
   imagePullPolicy: IfNotPresent
   resources:
     limits:
@@ -296,7 +296,7 @@ zync:
 
 # Specifies the configuration zync deployment
 zyncQue:
-  image: quay.io/3scale/zync:nightly
+  image: quay.io/spoole/zync:latest
   imagePullPolicy: IfNotPresent
   resources:
     limits:

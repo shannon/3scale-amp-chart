@@ -1,0 +1,6 @@
+{{- $seed := (lookup "v1" "Secret" .Release.Namespace "system-seed") -}}
+Please wait a few minutes for all the components to start and the appropriate ingresses to be created.
+Once running, you can vist the admin portal at https://{{ .Values.tenantName }}-admin.{{ .Values.wildcardDomain }}
+Use the following credentials to login
+username: {{ $seed.data.adminUsername | b64dec }}
+password: {{ $seed.data.adminPassword | b64dec }}
