@@ -5,3 +5,8 @@ Use the credentials below to login.
 username: {{ .Values.secrets.systemSeed.adminUsername }}
 password: {{ .Values.secrets.systemSeed.adminPassword }}
 
+You can visit the master admin portal at https://master.{{ .Values.wildcardDomain }}.
+Use the credentials below to login.
+username: {{ .Values.secrets.systemSeed.masterUsername }}
+password: {{ .Values.secrets.systemSeed.masterPassword }}
+
