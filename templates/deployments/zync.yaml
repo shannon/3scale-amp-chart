@@ -5,11 +5,13 @@ metadata:
   labels:
     {{- include "3scale-amp-chart.labels" . | nindent 4 }}
     threescale_component: zync
+    threescale_component_element: zync
 spec:
   replicas: 1
   selector:
     matchLabels:
       threescale_component: zync
+      threescale_component_element: zync
   strategy:
     type: Recreate
   template:
@@ -23,6 +25,7 @@ spec:
       labels:
         {{- include "3scale-amp-chart.selectorLabels" . | nindent 8 }}
         threescale_component: zync
+        threescale_component_element: zync
     spec:
       initContainers:
         - name: zync-db-svc

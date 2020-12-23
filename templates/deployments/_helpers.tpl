@@ -189,7 +189,7 @@
 - name: BACKEND_ROUTE
   valueFrom:
     secretKeyRef:
-      key: routeEndpoint
+      key: serviceEndpoint
       name: backend-listener
 - name: SMTP_ADDRESS
   valueFrom:

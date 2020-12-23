@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "3scale-amp-chart.labels" . | nindent 4 }}
     threescale_component: zync
+    threescale_component_element: zync
 spec:
   ports:
     - name: 8080-tcp
@@ -14,3 +15,4 @@ spec:
   selector:
     {{- include "3scale-amp-chart.selectorLabels" . | nindent 4 }}
     threescale_component: zync
+    threescale_component_element: zync
